@@ -1,20 +1,6 @@
 <template>
   <div>
     <div>
-      <p>请选择要进行的功能</p>
-      <a-select style="width: 120px" @change="handleSelect">
-        <a-select-option v-for="(config,i) in configs" :value="i" v-bind:key="i">
-          {{ config.desc }}
-        </a-select-option>
-      </a-select>
-      <div v-for="param in params">
-        <p>{{ param.name }}</p>
-        <div>
-          <a-input v-if="param.type==='string'" v-model="param.value"></a-input>
-        </div>
-      </div>
-    </div>
-    <div>
       <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol">
         <a-form-model-item label="请选择要执行的功能">
           <a-select v-model="form.desc" @change="handleSelect">
@@ -24,7 +10,10 @@
           </a-select>
         </a-form-model-item>
         <a-form-model-item v-for="(param,i) in params" :label="param.desc" v-bind:key="i">
-          <a-input v-model="form.params[i]"/>
+          <a-input v-if="param.type==='string'" v-model="form.params[i]"/>
+          <a-input-number v-if="param.type==='number'" v-model="form.params[i]"/>
+          <a-auto-complete v-if="param.type==='list'" v-model="form.params[i]" :data-source="param.values">
+            </a-auto-complete>
         </a-form-model-item>
         <a-button type="primary" @click="submit">
           确认
@@ -54,7 +43,7 @@ export default {
   data() {
     return {
       labelCol: {span: 4},
-      wrapperCol: {span: 14},
+      wrapperCol: {span: 12},
       msg: 'Welcome to Your Vue.js App',
       configs: [
         {
@@ -63,18 +52,25 @@ export default {
           params: [
             {
               name: 'test',
-              desc: 'test',
+              desc: 'testString',
               type: 'string',
               values: '',
               value: 'test',
             },
             {
               name: 'test',
-              desc: 'test',
-              type: 'string',
+              desc: 'testNumber',
+              type: 'number',
               values: '',
               value: 'test',
             },
+            {
+              name: 'test',
+              desc: 'testList',
+              type: 'list',
+              values: ['1','2','3'],
+              value: 'test',
+            }
           ]
         },
         {
@@ -87,7 +83,8 @@ export default {
         name: '',
         desc: '',
         params: [],
-      }
+      },
+      tempInput:'',
     }
   },
   methods: {
@@ -122,7 +119,7 @@ export default {
         this.form.desc = this.configs[i + 1].desc;
         this.params = this.configs[i + 1].params;
       }
-    }
+    },
   }
 }
 </script>
