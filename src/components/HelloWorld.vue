@@ -119,6 +119,9 @@
           this.imgUrl = 'http://localhost:5000/file1'
         }
         this.$message.success("成功提交")
+        this.$axios.post('/run',this.form).then(e => {
+          console.log('ok')
+        });
         this.form.params = []
       },
       next: function () {
