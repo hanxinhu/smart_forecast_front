@@ -115,7 +115,11 @@
           [1].name) {
           this.imgUrl = 'http://localhost:5000/file'
         }
+        if(this.form.name === this.configs[2].name){
+          this.imgUrl = 'http://localhost:5000/file1'
+        }
         this.$message.success("成功提交")
+        this.form.params = []
       },
       next: function () {
         let i = 0;
