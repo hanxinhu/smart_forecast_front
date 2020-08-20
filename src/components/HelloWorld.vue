@@ -18,11 +18,12 @@
         <a-button type="primary" @click="submit">
           确认
         </a-button>
+        <a-button type="primary" @click="getResult">展示结果</a-button>
       </a-form-model>
     </div>
     <div>
-      <a-button @click="next">下一步
-      </a-button>
+      <a-button @click="previous">上一步</a-button>
+      <a-button @click="next">下一步</a-button>
     </div>
     <div>
       <img :src="imgUrl">
@@ -45,6 +46,7 @@
           {
             name: 'name',
             desc: 'desc',
+            target: 'target',
             params: [
               {
                 name: 'test',
@@ -79,6 +81,7 @@
           name: '',
           desc: '',
           params: [],
+          target: '',
         },
         tempInput: '',
       }
@@ -103,30 +106,39 @@
       // },
       handleSelect: function (e) {
         console.log(e)
-        console.log(this.form)
+        this.params = this.configs[e].params;
         this.form.name = this.configs[e].name;
         this.form.desc = this.configs[e].desc;
-        this.params = this.configs[e].params;
+        this.form.target = this.configs[e].target;
+        console.log(this.form)
       },
       submit: function (e) {
         e.preventDefault();
+        let _this = this
         console.log(this.form)
-        if (this.form.name === this.configs
-          [1].name) {
-          this.imgUrl = 'http://localhost:5000/file'
-        }
-        if(this.form.name === this.configs[2].name){
-          this.imgUrl = 'http://localhost:5000/file1'
-        }
-        this.$message.success("成功提交")
-        this.$axios.post('/run',this.form).then(e => {
-          console.log('ok')
+        this.$message.success("成功提交计算任务，请等待片刻查看结果")
+        this.$axios.post('/run', this.form).then(e => {
+          console.log(e);
+          _this.form.params = _this.form.params.map(e=>'')
         });
-        this.form.params = []
       },
+      getResult: function (e) {
+        e.preventDefault()
+        console.log(this.form);
+        let _this = this
+        this.$axios.post('get_result', this.form).then(e => {
+          console.log(e)
+          if(e.data.startsWith('data:'))
+          {
+            _this.imgUrl = e.data
+          }else{
+            _this.$message.info(e.data)
+          }
+        })
+      }
+      ,
       next: function () {
         let i = 0;
-
         for (; i < this.configs.length; i++) {
           if (this.configs[i].name === this.form.name) {
             break;
@@ -139,6 +151,22 @@
           this.params = this.configs[i + 1].params;
         }
       },
+      previous: function () {
+        let i = 0;
+
+        for (; i < this.configs.length; i++) {
+          if (this.configs[i].name === this.form.name) {
+            break;
+          }
+        }
+
+        if (i - 1 >= 0) {
+          this.form.name = this.configs[i - 1].name;
+          this.form.desc = this.configs[i - 1].desc;
+          this.params = this.configs[i - 1].params;
+        }
+      },
+
     }
   }
 </script>
