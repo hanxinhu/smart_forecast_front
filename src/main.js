@@ -11,7 +11,7 @@ Vue.use(Antd)
 Vue.use(FormModel)
 Vue.config.productionTip = false
 Vue.prototype.$axios = axios
-axios.defaults.baseURL = 'http://localhost:5000'
+axios.defaults.baseURL = 'http://106.15.236.153'
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

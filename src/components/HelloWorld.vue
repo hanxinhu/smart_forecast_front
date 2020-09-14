@@ -2,18 +2,21 @@
   <div>
     <div>
       <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol">
-        <a-form-model-item label="请选择要执行的功能">
-          <a-select v-model="form.desc" @change="handleSelect">
-            <a-select-option v-for="(config,i) in configs" :value="i" v-bind:key="i">
-              {{ config.desc }}
-            </a-select-option>
-          </a-select>
+        <a-form-model-item label="选择选择执行的功能">
+          <a-radio-group v-model="form.type" @change="handleSelect" default-value="0">
+            <a-radio-button v-for="(config,i) in configs" :value="i" v-bind:key="i">{{config.desc}}</a-radio-button>
+          </a-radio-group>
         </a-form-model-item>
         <a-form-model-item v-for="(param,i) in params" :label="param.desc" v-bind:key="i">
           <a-input v-if="param.type==='string'" v-model="form.params[i]"/>
           <a-input-number v-if="param.type==='number'" v-model="form.params[i]"/>
           <a-auto-complete v-if="param.type==='list'" v-model="form.params[i]" :data-source="param.values">
           </a-auto-complete>
+          <a-select v-if="param.type==='select'"  v-model="form.params[i]">
+           <a-select-option v-for="obj in param.key_values" :value="obj.key" :key="obj.key">
+              {{obj.value}}
+           </a-select-option>
+          </a-select>
         </a-form-model-item>
         <a-button type="primary" @click="submit">
           确认
@@ -33,9 +36,13 @@
 
 <script>
 
+  import AFormItem from "ant-design-vue/es/form/FormItem";
+  import AFormModelItem from "ant-design-vue/es/form-model/FormItem";
+  import ARadioGroup from "ant-design-vue/es/radio/Group";
+  import ARadioButton from "ant-design-vue/es/radio/RadioButton";
   export default {
     name: 'HelloWorld',
-
+    components: {ARadioButton, ARadioGroup, AFormModelItem, AFormItem},
     data() {
       return {
         labelCol: {span: 4},
@@ -54,6 +61,10 @@
                 type: 'string',
                 values: '',
                 value: 'test',
+                key_values:[{
+                  key:'key',
+                  value:'value',
+                }],
               },
               {
                 name: 'test',
@@ -98,14 +109,13 @@
 
         })
       },
-      // getFile: function () {
-      //   let _this = this
-      //   this.$axios.get('/file').then(e => {
-      //     _this.pdfFile = e.data
-      //   })
-      // },
+
       handleSelect: function (e) {
-        console.log(e)
+        console.log(e);
+        console.log(this.form);
+        e = e.target.value;
+        this.imgUrl = null;
+        this.form.params = [];
         this.params = this.configs[e].params;
         this.form.name = this.configs[e].name;
         this.form.desc = this.configs[e].desc;
@@ -114,9 +124,9 @@
       },
       submit: function (e) {
         e.preventDefault();
-        let _this = this
-        console.log(this.form)
-        this.$message.success("成功提交计算任务，请等待片刻查看结果")
+        let _this = this;
+        console.log(this.form);
+        this.$message.success("成功提交计算任务，请等待片刻查看结果");
         this.$axios.post('/run', this.form).then(e => {
           console.log(e);
           _this.form.params = _this.form.params.map(e=>'')
@@ -138,6 +148,8 @@
       }
       ,
       next: function () {
+        this.imgUrl = null;
+        this.form.params = [];
         let i = 0;
         for (; i < this.configs.length; i++) {
           if (this.configs[i].name === this.form.name) {
@@ -153,7 +165,8 @@
       },
       previous: function () {
         let i = 0;
-
+        this.imgUrl = null;
+        this.form.params = [];
         for (; i < this.configs.length; i++) {
           if (this.configs[i].name === this.form.name) {
             break;
