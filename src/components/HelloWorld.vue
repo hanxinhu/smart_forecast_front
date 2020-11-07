@@ -24,10 +24,7 @@
         <a-button type="primary" @click="getResult">展示结果</a-button>
       </a-form-model>
     </div>
-    <div>
-      <a-button @click="previous">上一步</a-button>
-      <a-button @click="next">下一步</a-button>
-    </div>
+
     <div>
       <img :src="imgUrl">
     </div>
@@ -124,12 +121,10 @@
       },
       submit: function (e) {
         e.preventDefault();
-        let _this = this;
         console.log(this.form);
         this.$message.success("成功提交计算任务，请等待片刻查看结果");
         this.$axios.post('/run', this.form).then(e => {
           console.log(e);
-          _this.form.params = _this.form.params.map(e=>'')
         });
       },
       getResult: function (e) {
